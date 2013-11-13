@@ -13,6 +13,15 @@ git config --global user.email johndoe@example.com
 
 ########################################
 #                                      #
+#      merge two git repositories      #
+#                                      #
+########################################
+
+git remote add "proj" [url]
+git pull "proj"
+
+########################################
+#                                      #
 #         hide from google             #
 #                                      #
 ########################################
