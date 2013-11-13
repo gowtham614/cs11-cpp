@@ -1,0 +1,37 @@
+########################################
+#                                      #
+#               init                   #
+#                                      #
+########################################
+
+The first thing you should do when you install Git is to set your user name and e-mail address. 
+This is important because every Git commit uses this information, 
+and it’s immutably baked into the commits you pass around:
+
+git config --global user.name "John Doe"
+git config --global user.email johndoe@example.com
+
+########################################
+#                                      #
+#         hide from google             #
+#                                      #
+########################################
+
+The https://github.com/robots.txt file of Github allows the indexing of the blobs in the 'master' branch, 
+but restricts all other branches. So if you don't have a 'master' branch Google is not supposed to index your pages.
+
+How to remove the 'master' branch:
+
+In your clone create a new branch - let's call it 'development' and push it to github
+
+git checkout -b development
+git push -u origin development
+
+On Github change the default branch (see in the Settings section of your repository)
+
+then remove the master branch from your clone and from Github:
+
+git branch -d master
+git push origin :master
+
+Get other people who might have already forked your repository to do the same.
