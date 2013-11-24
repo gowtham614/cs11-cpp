@@ -3,7 +3,7 @@ cs11 - C++ Track
 
 CS11 C++ - Spring 2012-2013 (http://courses.cms.caltech.edu/cs11/material/cpp/donnie/index.html)
 
-lab1 - Intro
+lab1 - Intro 
 
 lab2 - Class
 
