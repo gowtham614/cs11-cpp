@@ -1,22 +1,20 @@
-/*
-** client.c -- a stream socket client demo
-*/
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <arpa/inet.h>  // inet_ntop
+#include <netdb.h>
 
-#include <arpa/inet.h>
+#include <stdlib.h>     // exit
+#include <string.h>     // memset
+#include <stdio.h>      // perror
+#include <errno.h>      // perror
 
-#define PORT "3490" // the port client will be connecting to 
+#include <iostream> 
 
-#define MAXDATASIZE 100 // max number of bytes we can get at once 
+// the port client will be connecting to 
+#define PORT "3490" 
+
+// max number of bytes we can get at once 
+#define MAXDATASIZE 100 
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -30,35 +28,40 @@ void *get_in_addr(struct sockaddr *sa)
 
 int main(int argc, char *argv[])
 {
-    int sockfd, numbytes;  
-    char buf[MAXDATASIZE];
     struct addrinfo hints, *servinfo, *p;
-    int rv;
-    char s[INET6_ADDRSTRLEN];
-
-    if (argc != 2) {
-        fprintf(stderr,"usage: client hostname\n");
+    char dst[INET6_ADDRSTRLEN];
+    char buf[MAXDATASIZE];
+    int rv, numbytes;
+    int sockfd; 
+    
+    if (argc != 2) 
+    {
+        std::cerr << "usage: client hostname" << std::endl;
         exit(1);
     }
 
     memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_family   = AF_UNSPEC;      // don't care IPv4 or IPv6
+    hints.ai_socktype = SOCK_STREAM;    // TCP stream sockets 
 
-    if ((rv = getaddrinfo(argv[1], PORT, &hints, &servinfo)) != 0) {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+    if ((rv = getaddrinfo(argv[1], PORT, &hints, &servinfo)) != 0) 
+    {
+        std::cerr << "getaddrinfo: " << gai_strerror(rv) << std::endl;
         return 1;
     }
 
     // loop through all the results and connect to the first we can
-    for(p = servinfo; p != NULL; p = p->ai_next) {
-        if ((sockfd = socket(p->ai_family, p->ai_socktype,
-                p->ai_protocol)) == -1) {
+    for(p = servinfo; p != NULL; p = p->ai_next) 
+    {
+        sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+        if (sockfd < 0) 
+        {
             perror("client: socket");
             continue;
         }
 
-        if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+        if (connect(sockfd, p->ai_addr, p->ai_addrlen) < 0) 
+        {
             close(sockfd);
             perror("client: connect");
             continue;
@@ -67,31 +70,43 @@ int main(int argc, char *argv[])
         break;
     }
 
-    if (p == NULL) {
-        fprintf(stderr, "client: failed to connect\n");
+    if (p == NULL) 
+    {
+        std::cerr << "client: failed to connect" << std::endl;
         return 2;
     }
 
-    inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),
-            s, sizeof s);
-    printf("client: connecting to %s\n", s);
+    // convert IPv4 and IPv6 addresses from binary to text form
+    inet_ntop(p->ai_family, 
+              get_in_addr((struct sockaddr *)p->ai_addr),
+              dst, sizeof dst);
+    
+    std::cout << "client: connecting to " << dst << std::endl;
 
-    freeaddrinfo(servinfo); // all done with this structure
+    // all done with this structure
+    freeaddrinfo(servinfo); 
 
-    if (send(sockfd, "Hello, world!", 13, 0) == -1)
+    std::cout << "enter message : ";
+    if(fgets(buf, MAXDATASIZE, stdin) == NULL)
+    {
+        std::cerr << "client: failed to get input" << std::endl;
+        return 1;
+    }
+
+    if (send(sockfd, buf, strlen(buf), 0) == -1)
     {
         perror("send");
         exit(1);
     }
 
-    if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+    if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) 
+    {
         perror("recv");
         exit(1);
     }
 
     buf[numbytes] = '\0';
-
-    printf("client: received '%s'\n",buf);
+    std::cout << "client: received - " << buf << std::endl;
 
     close(sockfd);
 

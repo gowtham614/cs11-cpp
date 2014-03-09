@@ -1,14 +1,14 @@
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <arpa/inet.h>
+#include <arpa/inet.h>  // inet_ntop
 #include <sys/wait.h>
 #include <signal.h>
 #include <netdb.h>
 
-#include <stdlib.h> // exit
-#include <string.h> // memset
-#include <stdio.h>  // perror
-#include <errno.h>  // perror
+#include <stdlib.h>     // exit
+#include <string.h>     // memset
+#include <stdio.h>      // perror
+#include <errno.h>      // perror
 
 #include <iostream> 
 
@@ -155,7 +155,7 @@ int main(int argc, char * argv[])
             }
             
             buf[numbytes] = '\0';
-            std::cout << "server: received '" << buf << "'" << std::endl;
+            std::cout << "server: received - " << buf << std::endl;
             
             // converts the sentence into capitals
             for(i=0 ; i < numbytes ; ++i)
